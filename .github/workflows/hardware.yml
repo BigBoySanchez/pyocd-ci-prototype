@@ -1,0 +1,19 @@
+name: Hardware Test
+
+on: [push]
+
+jobs:
+  test-board:
+    runs-on: [self-hosted]
+    env:
+      ELF: D:/Downloads/Git-Stuff/Blink_Alientek/.pio/build/bluepill_f103c8/firmware.elf
+      ADDR: 0x40010C08
+      TARGET: STM32F103RC
+      BREAKPOINT: 0x8001f1e
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install --upgrade pyocd
+      - run: python flash_and_peek.py
