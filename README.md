@@ -34,7 +34,8 @@ Minimal proof-of-concept for a hardware-in-the-loop test runner using pyOCD and 
 
 3. Set udev rules (Linux only):
 
-    Follow these steps: https://github.com/pyocd/pyOCD/blob/main/udev/README.md
+    Follow these steps: 
+    https://github.com/pyocd/pyOCD/blob/main/udev/README.md
 
     Replug the probe and re-run `pyocd list`.
 
@@ -57,10 +58,7 @@ Customize with environment variables:
 Want to run real hardware tests from GitHub Actions?
 
 This repo includes a **sample workflow file**:
-
-```
-sample-workflows/hardware.yml
-```
+📄 [sample-workflows/hardware.yml](sample-workflows/hardware.yml)
 
 It demonstrates how to:
 
@@ -80,12 +78,6 @@ Your self-hosted runner should have:
 * Python 3.11 or newer
 * `pyocd` installed (`pip install pyocd`)
 * Access to the debug probe via proper **udev rules** (on Linux)
-
-----------------------------
-🎥 Demo
-----------------------------
-
-    [Insert demo.gif or asciinema recording link here]
 
 ----------------------------
 📎 Resources
