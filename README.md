@@ -34,11 +34,7 @@ Minimal proof-of-concept for a hardware-in-the-loop test runner using pyOCD and 
 
 3. Set udev rules (Linux only):
 
-    ```bash
-    sudo cp 49-stlinkv2.rules /etc/udev/rules.d/
-    sudo udevadm control --reload-rules
-    sudo udevadm trigger
-    ```
+    Follow these steps: https://github.com/pyocd/pyOCD/blob/main/udev/README.md
 
     Replug the probe and re-run `pyocd list`.
 
@@ -52,32 +48,38 @@ This script flashes the ELF file and reads a memory address (e.g., an LED GPIO r
 
 Customize with environment variables:
 
-    ```bash
     ELF=./blinky.elf ADDR=0x4001100C python flash_and_peek.py
-    ```
 
 ----------------------------
 🧰 Sample CI Workflow
 ----------------------------
 
-Want to automate hardware testing from GitHub?
+Want to run real hardware tests from GitHub Actions?
 
-This repo includes a **sample GitHub Actions workflow** in:
+This repo includes a **sample workflow file**:
 
-    sample-workflows/hardware.yml
+```
+sample-workflows/hardware.yml
+```
 
-It shows how to:
-- Use a self-hosted runner
-- Install `pyocd`
-- Flash the board and read memory using `flash_and_peek.py`
+It demonstrates how to:
 
-Follow GitHub’s guide to install a self-hosted runner on the host PC connected to your board:
-https://docs.github.com/en/actions/hosting-your-own-runners
+* Set up a **self-hosted GitHub runner** (on a PC or Pi connected to your board)
+* Install `pyocd` in a virtual environment
+* Use `flash_and_peek.py` to:
 
-The runner should have:
-- Python 3.11+
-- pyOCD installed
-- Access to USB debug probe via udev rules
+  * Flash a test ELF to the board
+  * Reset and halt execution
+  * Read a memory address (e.g. an LED state byte)
+
+To set up the runner, follow GitHub’s official guide:
+👉 [https://docs.github.com/en/actions/hosting-your-own-runners](https://docs.github.com/en/actions/hosting-your-own-runners)
+
+Your self-hosted runner should have:
+
+* Python 3.11 or newer
+* `pyocd` installed (`pip install pyocd`)
+* Access to the debug probe via proper **udev rules** (on Linux)
 
 ----------------------------
 🎥 Demo

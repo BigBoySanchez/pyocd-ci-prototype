@@ -79,8 +79,6 @@ def main():
     if not ConnectHelper.get_all_connected_probes(blocking=False):
         logger.error("No debug probe found. Please check USB connection.")
         sys.exit(1)
-    else:
-        logger.info("No ELF file provided — skipping flashing.")
 
     with ConnectHelper.session_with_chosen_probe(target_override=args.target) as session:
         target = session.target
@@ -89,6 +87,8 @@ def main():
         if args.elf:
             programmer = FileProgrammer(session)
             programmer.program(args.elf)
+        else:
+            logger.info("No ELF file provided — skipping flashing.")
 
         # Wait for breakpoint to be reached
         logger.info("Running the target...")
