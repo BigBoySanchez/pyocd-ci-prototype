@@ -30,3 +30,10 @@ jobs:
         - name: Halt target
           run: |
             pyocd cmd -c "halt"
+        
+        - name: Verify breakpoint
+          if: ${{ inputs.breakpoint != '' }}
+          run: |
+            pyocd cmd -c "info breakpoints"
+            pyocd cmd -c "info registers"
+            pyocd cmd -c "read --address ${{ inputs.breakpoint }} --size 4"
