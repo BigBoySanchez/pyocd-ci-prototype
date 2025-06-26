@@ -12,16 +12,10 @@ on:
         type: string
         description: "Target board architecture (optional, defaults to auto-detected)"
         default: ''
-    outputs:
-      FLASHED:
-        description: "Whether the device was successfully flashed"
-        value: ${{ jobs.flash.outputs.FLASHED }}
 
 jobs:
   flash:
     runs-on: self-hosted
-    outputs:
-      FLASHED: ${{ steps.set_output.outputs.FLASHED }}
 
     steps:
       - name: Checkout repo
@@ -34,9 +28,3 @@ jobs:
       - name: Flash firmware (auto-detect)
         if: ${{ inputs.target == '' }}
         run: pyocd flash ${{ inputs.firmware_path }}
-
-
-      - name: Set FLASHED output
-        id: set_output
-        if: success()
-        run: echo "FLASHED=true" >> $GITHUB_OUTPUT

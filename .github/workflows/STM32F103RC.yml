@@ -3,6 +3,7 @@ name: Example STM32F103RC Workflow
 on: [push]
 
 jobs:
+# TODO make subsequent jobs confirm the right file is flashed
   flash:
     uses: ./.github/workflows/flash-firmware.yml
     with:
@@ -10,8 +11,7 @@ jobs:
       target: 'STM32F103RC'  # Specify the target architecture if needed
 
   halt:
-    uses: ./.github/workflows/halt.yml
     needs: flash
+    uses: ./.github/workflows/halt.yml
     with:
-      FLASHED: ${{ needs.flash.outputs.FLASHED }}
       breakpoint: 'main'  # Adjust this to the desired breakpoint address or symbol
