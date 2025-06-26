@@ -1,0 +1,22 @@
+name: Verify
+
+on:
+  workflow_call:
+    inputs:
+      address:
+        required: true
+        type: string
+        description: "Address to read from the target"
+      expected:
+        required: true
+        type: string
+        description: "Expected value at the address"
+
+jobs:
+  verify:
+    runs-on: self-hosted
+    steps:
+        - name: Verify memory
+          run: |
+            python ./scripts/verify.py --addr ${{ inputs.address }} --expected ${{ inputs.expected }}
+        

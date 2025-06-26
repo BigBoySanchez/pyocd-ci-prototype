@@ -15,3 +15,10 @@ jobs:
     uses: ./.github/workflows/halt.yml
     with:
       breakpoint: 'main'  # Adjust this to the desired breakpoint address or symbol
+  
+  verify:
+    needs: halt
+    uses: ./.github/workflows/verify.yml
+    with:
+      address: '0x40010c08'  # Example address to read from
+      expected: '0x0000fef3'  # Expected value at the address
