@@ -26,3 +26,7 @@ jobs:
         - name: Run target
           run: |
             pyocd cmd -c "continue"
+
+        - name: Halt target
+          run: |
+            pyocd cmd -c "halt"

@@ -13,7 +13,6 @@ def main():
     session = ConnectHelper.session_with_chosen_probe()
     with session:
         session.open()
-        session.target.halt()  # Ensure the target is halted before reading memory        
         contents = session.target.read_memory(args.addr)
 
         expected_value = int(args.expected, 0)  # Convert expected value to integer
