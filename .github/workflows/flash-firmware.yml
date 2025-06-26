@@ -27,16 +27,16 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v3
 
-      - name: Flash device with pyOCD
-        id: do_flash
-        run: |
-          if [ -n "${{ inputs.target }}" ]; then
-            pyocd flash "${{ inputs.firmware_path }}" --target "${{ inputs.target }}"
-          else
-            pyocd flash "${{ inputs.firmware_path }}"
-          fi
+      - name: Flash firmware (with --target)
+        if: ${{ inputs.target != '' }}
+        run: pyocd flash ${{ inputs.firmware_path }} --target ${{ inputs.target }}
+
+      - name: Flash firmware (auto-detect)
+        if: ${{ inputs.target == '' }}
+        run: pyocd flash ${{ inputs.firmware_path }}
+
 
       - name: Set FLASHED output
         id: set_output
-        if: steps.do_flash.conclusion == 'success'
+        if: success()
         run: echo "FLASHED=true" >> $GITHUB_OUTPUT
