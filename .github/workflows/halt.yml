@@ -1,0 +1,43 @@
+name: Halt Target
+
+on:
+  workflow_call:
+    inputs:
+      FLASHED:
+        required: true
+        type: boolean
+        description: "Whether the device was successfully flashed"
+      breakpoint:
+        required: false
+        type: string
+        description: "Breakpoint address or symbol to halt at"
+        default: ''
+
+jobs:
+
+  halt:
+    if: ${{ inputs.FLASHED == true }}
+    runs-on: self-hosted
+
+    steps:
+        - name: Reset target
+          run: |
+            pyocd cmd -c "reset halt"
+
+        - name: Set breakpoint
+          if: ${{ inputs.breakpoint != '' }}
+          run: |
+            pyocd cmd -c "break ${{ inputs.breakpoint }}"
+
+        - name: Run target
+          run: |
+            pyocd cmd -c "continue"
+
+  fail_if_not_flashed:
+    if: ${{ inputs.FLASHED != true }}
+    runs-on: self-hosted
+    
+    steps:
+      - run: |
+          echo "ERROR: Flash the board before running this."
+          exit 1

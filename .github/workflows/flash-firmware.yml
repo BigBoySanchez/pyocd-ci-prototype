@@ -1,0 +1,33 @@
+name: Flash Firmware
+
+on:
+  workflow_call:
+    inputs:
+      firmware_path:
+        required: true
+        type: string
+        description: "Path to the firmware file to flash"
+    outputs:
+      FLASHED:
+        description: "Whether the device was successfully flashed"
+        value: ${{ jobs.flash.outputs.FLASHED }}
+
+jobs:
+  flash:
+    runs-on: self-hosted
+    outputs:
+      FLASHED: ${{ steps.set_output.outputs.FLASHED }}
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Flash device with pyOCD
+        id: do_flash
+        run: |
+          pyocd flash "${{ inputs.firmware_path }}"
+
+      - name: Set FLASHED output
+        id: set_output
+        if: steps.do_flash.conclusion == 'success'
+        run: echo "FLASHED=true" >> $GITHUB_OUTPUT

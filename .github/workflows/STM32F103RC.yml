@@ -1,0 +1,16 @@
+name: Example STM32F103RC Workflow
+
+on: [push]
+
+jobs:
+  flash:
+    uses: ./.github/workflows/flash-firmware.yml
+    with:
+      firmware_path: './examples/STM32F103RC-blink.elf'
+
+  halt:
+    uses: ./.github/workflows/halt.yml
+    needs: flash
+    with:
+      FLASHED: ${{ needs.flash.outputs.FLASHED }}
+      breakpoint: 'main'  # Adjust this to the desired breakpoint address or symbol
