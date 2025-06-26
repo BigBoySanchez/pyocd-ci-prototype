@@ -30,10 +30,10 @@ jobs:
       - name: Flash device with pyOCD
         id: do_flash
         run: |
-          if [ -n ${{ inputs.target }} ]; then
-            pyocd flash ${{ inputs.firmware_path }} --target ${{ inputs.target }}
+          if [ -n "${{ inputs.target }}" ]; then
+            pyocd flash "${{ inputs.firmware_path }}" --target "${{ inputs.target }}"
           else
-            pyocd flash ${{ inputs.firmware_path }}
+            pyocd flash "${{ inputs.firmware_path }}"
           fi
 
       - name: Set FLASHED output
