@@ -67,97 +67,38 @@ You should see your device listed.
 
 ## Usage
 
-The `verify.yml` workflow is designed to run on a self-hosted GitHub Actions runner connected to your target hardware. It performs the following steps:
+This repository is designed to run hardware-in-the-loop tests as part of a CI workflow using pyOCD.
 
-1. **Checkout Repository**: Clones the repository containing the firmware and scripts.
-2. **Set Up Python Environment**: Installs Python and necessary dependencies.
-3. **Flash Firmware**: Uses pyOCD to flash the firmware onto the target device.
-4. **Halt Execution**: Halts the device execution at a specified breakpoint or time.
-5. **Verify RAM Contents**: Reads and verifies RAM contents to ensure correct execution.
+### GitHub Actions Workflow
 
-Here's a simplified version of the `verify.yml` workflow:
+The core logic lives in [`.github/workflows/verify.yml`](.github/workflows/verify.yml), which can be triggered manually or by another workflow.
+
+### Example: Manually Trigger the Workflow
+
+If you have `workflow_dispatch` enabled in `verify.yml`, you can manually trigger the job from the GitHub UI:
+
+1. Go to the "Actions" tab in your GitHub repository.
+2. Select `verify` from the workflow list.
+3. Click **Run workflow**, optionally passing in any defined inputs.
+
+### Example: Call from Another Workflow
+
+You can trigger the `verify.yml` workflow from another workflow using the [`workflow_call`](https://docs.github.com/en/actions/using-workflows/reusing-workflows) event.
 
 ```yaml
-name: Verify Firmware
+name: Example STM32F103RC Workflow
 
-on:
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+on: [push]
 
 jobs:
   verify:
-    runs-on: self-hosted
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
-
-      - name: Set up Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: '3.x'
-
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-
-      - name: Flash firmware
-        run: |
-          pyocd flash path/to/firmware.elf
-
-      - name: Halt execution
-        run: |
-          pyocd cmd "halt"
-
-      - name: Verify RAM contents
-        run: |
-          pyocd cmd "read32 0x20000000 4"
+      uses: BigBoySanchez/pyocd-ci-prototype/.github/workflows/verify.yml
+      with:
+        elf: './examples/STM32F103RC-blink.elf'
+        addr: '0x40010c08'
+        target: 'stm32f103rc'
+        breakpoint: '0x08001f10'
 ```
-
-**Note**: Replace `path/to/firmware.elf` with the actual path to your firmware file.
-
-## 🛠️ Setting Up the Self-Hosted Runner
-
-To use this workflow, you'll need to set up a self-hosted GitHub Actions runner connected to your target hardware:
-
-1. **Set Up the Runner**:
-
-   * Follow GitHub's [official guide](https://docs.github.com/en/actions/hosting-your-own-runners/about-self-hosted-runners) to add a self-hosted runner to your repository.
-
-2. **Install pyOCD**:
-
-   * Ensure `pyocd` is installed on the runner machine:
-
-     ```bash
-     pip install --upgrade pyocd
-     ```
-
-3. **Connect Debug Probe**:
-
-   * Connect your supported debug probe (e.g., ST-Link, CMSIS-DAP) to the runner machine and the target device.
-
-4. **Configure udev Rules (Linux Only)**:
-
-   * Set up udev rules to allow non-root access to the debug probe.
-
-## ✅ Verifying the Setup
-
-After setting up the self-hosted runner and connecting your hardware:
-
-1. **Start the Runner**:
-
-   * Run the self-hosted runner application on your machine.
-
-2. **Push Changes**:
-
-   * Push changes to the `main` branch or open a pull request targeting `main`.
-
-3. **Monitor Workflow**:
-
-   * Navigate to the "Actions" tab in your GitHub repository to monitor the workflow execution.
 
 ## Contributing
 
