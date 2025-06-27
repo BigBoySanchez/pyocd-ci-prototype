@@ -1,7 +1,7 @@
 import logging
 import argparse
-import os
 from pyocd.core.helpers import ConnectHelper
+import os
 from pyocd.flash.file_programmer import FileProgrammer
 import time
 import sys
