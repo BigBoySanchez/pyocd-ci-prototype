@@ -3,22 +3,10 @@ name: Example STM32F103RC Workflow
 on: [push]
 
 jobs:
-# TODO make subsequent jobs confirm the right file is flashed
-  flash:
-    uses: ./.github/workflows/flash-firmware.yml
-    with:
-      firmware_path: './examples/STM32F103RC-blink.elf'
-      target: 'STM32F103RC'  # Specify the target architecture if needed
-
-  halt:
-    needs: flash
-    uses: ./.github/workflows/halt.yml
-    with:
-      breakpoint: '0x8001f1e'  # Adjust this to the desired breakpoint address or symbol
-  
   verify:
-    needs: halt
-    uses: ./.github/workflows/verify.yml
-    with:
-      address: '0x40010c08'  # Example address to read from
-      expected: '0x0000fef3'  # Expected value at the address
+      uses: ./.github/workflows/verify.yml
+      with:
+        elf: './examples/STM32F103RC-blink.elf'
+        addr: '0x40010c08'
+        target: 'stm32f103rc'
+        breakpoint: '0x08001f10'

@@ -1,22 +1,38 @@
-name: Verify
+name: Verify RAM Content
 
 on:
   workflow_call:
     inputs:
-      address:
+      elf:
+        description: "Path to the ELF file (optional, doesn't need to be provided if the firmware is already flashed)"
+        required: false
+        type: string
+      addr:
+        description: 'Memory address to read (e.g., 0x20000000)'
         required: true
         type: string
-        description: "Address to read from the target"
-      expected:
+      target:
+        description: 'Target board architecture (e.g., stm32f4xx)'
         required: true
         type: string
-        description: "Expected value at the address"
+      breakpoint:
+        description: 'Breakpoint address (e.g., 0x08001234)'
+        required: true
+        type: string
 
 jobs:
-  verify:
-    runs-on: self-hosted
+  test-board:
+    runs-on: [self-hosted]
     steps:
-        - name: Verify memory
-          run: |
-            python ./scripts/verify.py --addr ${{ inputs.address }} --expected ${{ inputs.expected }}
-        
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install pyOCD
+        run: pip install --upgrade pyocd
+
+      - name: Run flash and peek script
+        run: |
+          python ./scripts/flash_and_peek.py --target "${{ inputs.target }}" --addr "${{ inputs.addr }}" --breakpoint "${{ inputs.breakpoint }}" ${{ inputs.elf && format('--elf {0}', inputs.elf) || '' }}
