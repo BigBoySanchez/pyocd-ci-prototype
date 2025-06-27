@@ -1,87 +1,105 @@
-pyocd-ci-prototype
-==================
 
-Minimal proof-of-concept for a hardware-in-the-loop test runner using pyOCD and GitHub Actions on a self-hosted runner.
+# pyocd-ci-prototype
 
-----------------------------
-🚀 Quick Start
-----------------------------
+A minimal proof-of-concept for a hardware-in-the-loop (HIL) continuous integration (CI) runner using [pyOCD](https://github.com/pyocd/pyOCD) and GitHub Actions on a self-hosted runner.
 
-1. Clone the repo and set up Python:
+## Features
 
-    ```bash
-    git clone https://github.com/BigBoySanchez/pyocd-ci-prototype
-    cd pyocd-ci-prototype
-    python3 -m venv .venv && source .venv/bin/activate
-    pip install -r requirements.txt
-    ```
+* **Firmware Flashing**: Automatically flash firmware onto target devices using pyOCD.
+* **Execution Control**: Halt execution at specified breakpoints or times to facilitate testing.
+* **Memory Inspection**: Read and verify RAM contents to ensure correct execution.
+* **GitHub Actions Integration**: Automate testing workflows with GitHub Actions on self-hosted runners.
 
-    Or install pyocd directly:
+## Getting Started
 
-    ```bash
-    pip install --upgrade pyocd
-    ```
+### Prerequisites
 
-2. Connect your debug probe:
+* Python 3.7 or higher
+* A supported debug probe (e.g., ST-Link V2, CMSIS-DAP, J-Link)
+* Target device with Arm Cortex-M microcontroller
 
-    Plug in your ST-Link V2 or other CMSIS-DAP/J-Link probe, then run:
+### Installation
 
-    ```bash
-    pyocd list
-    ```
+1. **Clone the Repository**:
 
-    You should see your device detected.
+   ```bash
+   git clone https://github.com/BigBoySanchez/pyocd-ci-prototype
+   cd pyocd-ci-prototype
+   ```
 
-3. Set udev rules (Linux only):
 
-    Follow these steps: 
-    https://github.com/pyocd/pyOCD/blob/main/udev/README.md
 
-    Replug the probe and re-run `pyocd list`.
+2. **Set Up Python Environment**:
 
-----------------------------
-🧪 Running the test script
-----------------------------
+   ```bash
+   python3 -m venv .venv
+   source .venv/bin/activate
+   pip install -r requirements.txt
+   ```
 
-This script flashes the ELF file and reads a memory address (e.g., an LED GPIO register):
 
-    python flash_and_peek.py
 
-Customize with environment variables:
+*Alternatively, install pyOCD directly:*
 
-    ELF=./blinky.elf ADDR=0x4001100C python flash_and_peek.py
+```bash
+pip install --upgrade pyocd
+```
 
-----------------------------
-🧰 Sample CI Workflow
-----------------------------
 
-Want to run real hardware tests from GitHub Actions?
 
-This repo includes a **sample workflow file**:
-📄 [sample-workflows/hardware.yml](sample-workflows/hardware.yml)
+3. **Connect Your Debug Probe**:
 
-It demonstrates how to:
+   Plug in your debug probe and verify connection:
 
-* Set up a **self-hosted GitHub runner** (on a PC or Pi connected to your board)
-* Install `pyocd` in a virtual environment
-* Use `flash_and_peek.py` to:
+   ```bash
+   pyocd list
+   ```
 
-  * Flash a test ELF to the board
-  * Reset and halt execution
-  * Read a memory address (e.g. an LED state byte)
 
-To set up the runner, follow GitHub’s official guide:
-👉 [https://docs.github.com/en/actions/hosting-your-own-runners](https://docs.github.com/en/actions/hosting-your-own-runners)
 
-Your self-hosted runner should have:
+You should see your device listed.
 
-* Python 3.11 or newer
-* `pyocd` installed (`pip install pyocd`)
-* Access to the debug probe via proper **udev rules** (on Linux)
+4. **Set Up udev Rules (Linux Only)**:
 
-----------------------------
-📎 Resources
-----------------------------
+   Follow the instructions in the [pyOCD udev README](https://github.com/pyocd/pyOCD/blob/main/udev/README.md) to configure udev rules.
 
-- pyOCD: https://pyocd.io/docs/
-- Self-hosted runners: https://docs.github.com/en/actions/hosting-your-own-runners
+   After setting up, replug the probe and rerun `pyocd list` to confirm detection.
+
+## Usage
+
+This repository is designed to run hardware-in-the-loop tests as part of a CI workflow using pyOCD.
+
+### GitHub Actions Workflow
+
+The core logic lives in [`.github/workflows/verify.yml`](.github/workflows/verify.yml), which can be triggered manually or by another workflow.
+
+### Example: Manually Trigger the Workflow
+
+If you have `workflow_dispatch` enabled in `verify.yml`, you can manually trigger the job from the GitHub UI:
+
+1. Go to the "Actions" tab in your GitHub repository.
+2. Select `verify` from the workflow list.
+3. Click **Run workflow**, optionally passing in any defined inputs.
+
+### Example: Call from Another Workflow
+
+You can trigger the `verify.yml` workflow from another workflow using the [`workflow_call`](https://docs.github.com/en/actions/using-workflows/reusing-workflows) event.
+
+```yaml
+name: Example STM32F103RC Workflow
+
+on: [push]
+
+jobs:
+  verify:
+      uses: BigBoySanchez/pyocd-ci-prototype/.github/workflows/verify.yml
+      with:
+        elf: './examples/STM32F103RC-blink.elf'
+        addr: '0x40010c08'
+        target: 'stm32f103rc'
+        breakpoint: '0x08001f10'
+```
+
+## Contributing
+
+Contributions are welcome! Please open issues or submit pull requests for enhancements or bug fixes.
