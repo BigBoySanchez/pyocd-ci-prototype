@@ -26,5 +26,7 @@ jobs:
       - name: Run HIL test
         run: |
           ssh -o StrictHostKeyChecking=no \
+              -o IdentitiesOnly=yes \
+              -o PreferredAuthentications=publickey \
               "$SSH_USER@$MAC_HOST" \
               echo "Hello from the Mac!"
