@@ -15,7 +15,6 @@ jobs:
         uses: tailscale/github-action@v3
         with:
           authkey: ${{ secrets.TEST_TAILSCALE }}
-          tags: tag:ci-runner        # must match ACL
         # (If you switched to OAuth: use oauth-client-id / oauth-secret instead)
 
       # 2. (Optional) Fail fast if the Mac can’t be reached
