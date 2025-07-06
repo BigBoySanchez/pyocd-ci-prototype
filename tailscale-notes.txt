@@ -1,0 +1,8 @@
+ssh check mode (https://tailscale.com/kb/1193/tailscale-ssh#configure-tailscale-ssh-with-check-mode)
+- allows for mfa, but leaving it out for now
+
+tailscale ssh is fire
+
+do ssh tests later
+
+how does gang want to auth new contributors?
