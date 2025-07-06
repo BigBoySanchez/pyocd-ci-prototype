@@ -26,4 +26,5 @@ jobs:
       - name: Run HIL test
         run: |
           ssh $SSH_USER@$MAC_HOST \
+            -o StrictHostKeyChecking=accept-new \
             echo "Hello from the Mac!"
