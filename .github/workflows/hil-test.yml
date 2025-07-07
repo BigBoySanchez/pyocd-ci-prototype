@@ -3,28 +3,9 @@ on: [push]
 
 jobs:
   hil:
-    runs-on: ubuntu-latest          # hosted runner
-    env:
-      MAC_HOST:  jaquens-macbook-air            # MagicDNS name or tail IP
-      SSH_USER:  ${{ secrets.TEST_NAME }}
-    steps:
-      - uses: actions/checkout@v4
-
-      # 1. Join the tailnet as an EPHEMERAL node (tagged ci-runner)
-      - name: Connect to Tailnet
-        uses: tailscale/github-action@v3
-        with:
-          oauth-client-id: ${{ secrets.TEST_CLIENT_ID }}
-          oauth-secret: ${{ secrets.TEST_CLIENT_SECRET }}
-          tags: tag:ci-runner
-
-      # 2. (Optional) Fail fast if the Mac can’t be reached
-      - name: Ping the target
-        run: tailscale ping -c 3 $MAC_HOST
-
-      # 3. Run whatever you need on the Mac
-      - name: Run HIL test
-        run: |
-          ssh $SSH_USER@$MAC_HOST \
-            -o StrictHostKeyChecking=accept-new \
-            echo "Hello from the Mac!"
+    uses: ./.github/workflows/tailscale-prototype.yml
+    secrets:
+      HOSTNAME: ${{ secrets.TEST_HOSTNAME }}
+      SSH_USER: ${{ secrets.TEST_USER }}
+      CLIENT_ID: ${{ secrets.TEST_CLIENT_ID }}
+      CLIENT_SECRET: ${{ secrets.TEST_CLIENT_SECRET }}

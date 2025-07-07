@@ -1,0 +1,41 @@
+name: Tailscale Prototype
+
+on: 
+    workflow_call:
+        secrets:
+            HOSTNAME:
+                required: true
+            SSH_USER:
+                required: false
+            CLIENT_ID:
+                required: true
+            CLIENT_SECRET:
+                required: true
+
+jobs:
+    join-tailnet:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Connect to Tailnet
+              uses: tailscale/github-action@v3
+              with:
+                oauth-client-id: ${{ secrets.CLIENT_ID }}
+                oauth-secret: ${{ secrets.CLIENT_SECRET }}
+                tags: tag:ci-runner
+
+            - name: Ping the target
+              run: tailscale ping -c 3 ${{ secrets.HOSTNAME }}
+
+    run-tests:
+        runs-on: ubuntu-latest
+        needs: [join-tailnet]
+        steps:
+            - uses: actions/checkout@v4
+            - name: run tests on target
+              run: |
+                scp -o StrictHostKeyChecking=accept-new \
+                    -r . "${{ secrets.SSH_USER }}@${{ secrets.HOSTNAME }}:~/ci-tests"
+
+                ssh -o StrictHostKeyChecking=accept-new \
+                    "${{ secrets.SSH_USER }}@${{ secrets.HOSTNAME }}" \
+                    "cd ~/ci-tests && ./scripts/flash_and_peek.py --target stm32f103rc --addr 0x40010c08 --breakpoint 0x08001f10 --elf ./examples/STM32F103RC-blink.elf"
