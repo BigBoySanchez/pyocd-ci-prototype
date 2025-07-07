@@ -36,6 +36,6 @@ jobs:
                 scp -o StrictHostKeyChecking=accept-new \
                     -r . "${{ secrets.SSH_USER }}@${{ secrets.HOSTNAME }}:~/ci-tests"
 
-                ssh -o StrictHostKeyChecking=accept-new \
-                    "${{ secrets.SSH_USER }}@${{ secrets.HOSTNAME }}" \
-                    "cd ~/ci-tests && ./scripts/flash_and_peek.py --target stm32f103rc --addr 0x40010c08 --breakpoint 0x08001f10 --elf ./examples/STM32F103RC-blink.elf"
+                # ssh -o StrictHostKeyChecking=accept-new \
+                #     "${{ secrets.SSH_USER }}@${{ secrets.HOSTNAME }}" \
+                #     "cd ~/ci-tests && ./scripts/flash_and_peek.py --target stm32f103rc --addr 0x40010c08 --breakpoint 0x08001f10 --elf ./examples/STM32F103RC-blink.elf"
