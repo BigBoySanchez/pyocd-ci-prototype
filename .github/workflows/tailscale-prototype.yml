@@ -23,9 +23,6 @@ jobs:
                 oauth-secret: ${{ secrets.CLIENT_SECRET }}
                 tags: tag:ci-runner
 
-            - name: Ping the target
-              run: tailscale ping -c 3 ${{ secrets.HOSTNAME }}
-
             - name: copy repository to target
               uses: actions/checkout@v4
 
