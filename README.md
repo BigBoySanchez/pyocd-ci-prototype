@@ -1,105 +1,66 @@
-
 # pyocd-ci-prototype
 
-A minimal proof-of-concept for a hardware-in-the-loop (HIL) continuous integration (CI) runner using [pyOCD](https://github.com/pyocd/pyOCD) and GitHub Actions on a self-hosted runner.
+Workflow and script to test on lenders' hardware using pyOCD and Tailscale.
 
-## Features
+## 🌐 Architecture
 
-* **Firmware Flashing**: Automatically flash firmware onto target devices using pyOCD.
-* **Execution Control**: Halt execution at specified breakpoints or times to facilitate testing.
-* **Memory Inspection**: Read and verify RAM contents to ensure correct execution.
-* **GitHub Actions Integration**: Automate testing workflows with GitHub Actions on self-hosted runners.
+![Architecture Diagram](docs/architecture.svg)
 
-## Getting Started
+## 🔁 Lending Hardware
 
-### Prerequisites
-
-* Python 3.7 or higher
-* A supported debug probe (e.g., ST-Link V2, CMSIS-DAP, J-Link)
-* Target device with Arm Cortex-M microcontroller
-
-### Installation
-
-1. **Clone the Repository**:
-
-   ```bash
-   git clone https://github.com/BigBoySanchez/pyocd-ci-prototype
-   cd pyocd-ci-prototype
-   ```
-
-
-
-2. **Set Up Python Environment**:
-
-   ```bash
-   python3 -m venv .venv
-   source .venv/bin/activate
-   pip install -r requirements.txt
-   ```
-
-
-
-*Alternatively, install pyOCD directly:*
+Whenever a lender wants to add a new SSH server to the network, the admin must generate an authkey.  
+After sharing the key with the lender, the lender must [install Tailscale on the server](https://tailscale.com/kb/1347/installation).  
+After installing, they need to add their device using the authkey:
 
 ```bash
-pip install --upgrade pyocd
+   tailscale up --authkey=<auth_key_from_admin>
 ```
 
+To learn more about adding devices, read [this](https://tailscale.com/kb/1316/device-add).
+
+## 🔁 Borrowing Hardware
+
+For proper security, borrowers must use an **OAuth Client** given by the network admin.
+
+Usage examples can be found in [.github/workflows/tailscale-prototype.yml](.github/workflows/tailscale-prototype.yml) and in Tailscale's [OAuth Client article](https://tailscale.com/kb/1215/oauth-clients).
+
+## 🔑 Authentication & Secure Access
+
+To prevent unwanted access to lender hardware, the admin has to modify the SSH setting in the access control list (ACL).  
+Here's an example of the SSH rule I used in my test:
+![ACL-Example](docs/acl-example.png)
 
 
-3. **Connect Your Debug Probe**:
+Tailscale has more examples [here](https://tailscale.com/kb/1192/acl-samples).
 
-   Plug in your debug probe and verify connection:
+## 🏷️ Resource Tagging
 
-   ```bash
-   pyocd list
-   ```
-
-
-
-You should see your device listed.
-
-4. **Set Up udev Rules (Linux Only)**:
-
-   Follow the instructions in the [pyOCD udev README](https://github.com/pyocd/pyOCD/blob/main/udev/README.md) to configure udev rules.
-
-   After setting up, replug the probe and rerun `pyocd list` to confirm detection.
-
-## Usage
-
-This repository is designed to run hardware-in-the-loop tests as part of a CI workflow using pyOCD.
-
-### GitHub Actions Workflow
-
-The core logic lives in [`.github/workflows/verify.yml`](.github/workflows/verify.yml), which can be triggered manually or by another workflow.
-
-### Example: Manually Trigger the Workflow
-
-If you have `workflow_dispatch` enabled in `verify.yml`, you can manually trigger the job from the GitHub UI:
-
-1. Go to the "Actions" tab in your GitHub repository.
-2. Select `verify` from the workflow list.
-3. Click **Run workflow**, optionally passing in any defined inputs.
-
-### Example: Call from Another Workflow
-
-You can trigger the `verify.yml` workflow from another workflow using the [`workflow_call`](https://docs.github.com/en/actions/using-workflows/reusing-workflows) event.
-
-```yaml
-name: Example STM32F103RC Workflow
-
-on: [push]
-
-jobs:
-  verify:
-      uses: BigBoySanchez/pyocd-ci-prototype/.github/workflows/verify.yml
-      with:
-        elf: './examples/STM32F103RC-blink.elf'
-        addr: '0x40010c08'
-        target: 'stm32f103rc'
-        breakpoint: '0x08001f10'
+To solve the issue of hardware resources, lenders can add **tags** to their devices.  
+These tags can be read through the cli by running:
+```bash
+   tailscale status --json
 ```
 
-## Contributing
+It's possible to search for these tags and pair a job with a suitable runner, but this is not built-in.  
+NOTE: Tags can be added to **all** devices, even the ephemeral node created by Github Actions.
 
-Contributions are welcome! Please open issues or submit pull requests for enhancements or bug fixes.
+## 🧪 Running Tests
+
+To run Github Actions + Tailscale, the borrower needs to use Tailscale's Github Action, along with their *secret* OAuth Client information and tags.  
+For more information, look at [Tailscale's article](https://tailscale.com/kb/1276/tailscale-github-action) and [.github/workflows/tailscale-prototype.yml](.github/workflows/tailscale-prototype.yml), where the action is called.
+
+
+## 📦 Future Work
+
+### 🔐 Security Considerations
+
+- MFA can be used with Tailscale SSH (See [TailScale check mode](https://tailscale.com/kb/1193/tailscale-ssh#check-mode))
+- We can test how SSH users are verified (See [Tailscale SSH tests](https://tailscale.com/kb/1337/policy-syntax#sshtests))
+- How do we verify that code is safe to run on hardware?
+- How do we prevent DoS attacks?
+- We can restrict borrowers to testing files using user privileges 
+
+### 🚦 Error Handling & Propagation
+
+In my testing, running the SSH running the testing scripts will pass on successful SSH login, independent from the code ran in the SSH.  
+This means that a failing test will pass on Github Actions.
