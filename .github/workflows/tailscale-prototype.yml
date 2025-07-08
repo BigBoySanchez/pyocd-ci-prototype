@@ -23,13 +23,12 @@ jobs:
                 oauth-secret: ${{ secrets.CLIENT_SECRET }}
                 tags: tag:ci-runner
 
-            - name: copy repository to target
+            - name: Copy repository to target
               uses: actions/checkout@v4
 
             - name: Copy files to target
               run: |
-                scp -o StrictHostKeyChecking=accept-new \
-                    -r . "${{ secrets.SSH_USER }}@${{ secrets.HOSTNAME }}:~/ci-tests"
+                scp -r . "${{ secrets.SSH_USER }}@${{ secrets.HOSTNAME }}:~/ci-tests"
 
                 tailscale ssh \
                     "${{ secrets.SSH_USER }}@${{ secrets.HOSTNAME }}" \
