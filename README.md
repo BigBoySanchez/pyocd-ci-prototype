@@ -64,3 +64,7 @@ For more information, look at [Tailscale's article](https://tailscale.com/kb/127
 
 In my testing, running the SSH running the testing scripts will pass on successful SSH login, independent from the code ran in the SSH.  
 This means that a failing test will pass on Github Actions.
+
+### 🔨 Copying Files to SSH
+
+Currently ignores strict host key checking, but would ideally be able to use Tailscale's verification.
