@@ -1,0 +1,37 @@
+name: Tailscale Prototype
+
+on: 
+    workflow_call:
+        secrets:
+            HOSTNAME:
+                required: true
+            SSH_USER:
+                required: false
+            CLIENT_ID:
+                required: true
+            CLIENT_SECRET:
+                required: true
+
+jobs:
+    join-tailnet:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Connect to Tailnet
+              uses: tailscale/github-action@v3
+              with:
+                oauth-client-id: ${{ secrets.CLIENT_ID }}
+                oauth-secret: ${{ secrets.CLIENT_SECRET }}
+                tags: tag:ci-runner
+
+            - name: Copy repository to target
+              uses: actions/checkout@v4
+
+            - name: Copy files to target
+              run: |
+                scp -o StrictHostKeyChecking=accept-new \
+                    -r . "${{ secrets.SSH_USER }}@${{ secrets.HOSTNAME }}:~/ci-tests"
+
+
+                tailscale ssh \
+                    "${{ secrets.SSH_USER }}@${{ secrets.HOSTNAME }}" \
+                    "cd ~/ci-tests && python3 ./scripts/flash_and_peek.py --target stm32f103rc --addr 0x40010c08 --breakpoint 0x08001f1e --elf ./examples/STM32F103RC-blink.elf"

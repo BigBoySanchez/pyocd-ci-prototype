@@ -1,0 +1,11 @@
+name: HIL-Test
+on: [push]
+
+jobs:
+  hil:
+    uses: ./.github/workflows/tailscale-prototype.yml
+    secrets:
+      HOSTNAME: ${{ secrets.TEST_HOSTNAME }}
+      SSH_USER: ${{ secrets.TEST_USER }}
+      CLIENT_ID: ${{ secrets.TEST_CLIENT_ID }}
+      CLIENT_SECRET: ${{ secrets.TEST_CLIENT_SECRET }}

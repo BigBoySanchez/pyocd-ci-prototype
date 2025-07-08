@@ -1,0 +1,14 @@
+ssh check mode (https://tailscale.com/kb/1193/tailscale-ssh#configure-tailscale-ssh-with-check-mode)
+- allows for mfa, but leaving it out for now
+
+tailscale ssh is fire
+
+do ssh tests later
+
+flow for adding new contributors?
+
+how do we verify the code being uploaded isnt evil?
+
+are we concerned about dos attacks? how do we prevent them
+
+should we restrict what can be executed on the target? how? (new user w/ restricted priviliges?)
