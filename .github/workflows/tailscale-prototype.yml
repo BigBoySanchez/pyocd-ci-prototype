@@ -28,7 +28,7 @@ jobs:
 
             - name: Copy files to target
               run: |
-                scp -o ProxyCommand='tailscale ssh -i %h' \ 
+                scp -o StrictHostKeyChecking=accept-new \
                     -r . "${{ secrets.SSH_USER }}@${{ secrets.HOSTNAME }}:~/ci-tests"
 
 
